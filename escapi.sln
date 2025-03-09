@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "escapi_dll", "escapi_dll\escapi_dll.vcxproj", "{3EF96013-D483-4A34-8599-4B1FE47CAEBE}"
 EndProject
@@ -24,6 +24,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ogl", "ogl\ogl.vcxproj", "{
 	ProjectSection(ProjectDependencies) = postProject
 		{3EF96013-D483-4A34-8599-4B1FE47CAEBE} = {3EF96013-D483-4A34-8599-4B1FE47CAEBE}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ogl_eCAL", "ogl_eCAL\ogl_eCAL.vcxproj", "{CC5AE096-EB06-40B9-B32A-275C42DB8E37}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "multicap", "multicap\multicap.vcxproj", "{085B3F2F-1B36-4BCE-8464-81EE5B62589F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -80,6 +82,14 @@ Global
 		{CC5AE096-EB06-40B9-B32A-275C42DB8E36}.Release|Win32.Build.0 = Release|Win32
 		{CC5AE096-EB06-40B9-B32A-275C42DB8E36}.Release|x64.ActiveCfg = Release|x64
 		{CC5AE096-EB06-40B9-B32A-275C42DB8E36}.Release|x64.Build.0 = Release|x64
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Debug|Win32.Build.0 = Debug|Win32
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Debug|x64.ActiveCfg = Debug|x64
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Debug|x64.Build.0 = Debug|x64
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Release|Win32.ActiveCfg = Release|Win32
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Release|Win32.Build.0 = Release|Win32
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Release|x64.ActiveCfg = Release|x64
+		{CC5AE096-EB06-40B9-B32A-275C42DB8E37}.Release|x64.Build.0 = Release|x64
 		{085B3F2F-1B36-4BCE-8464-81EE5B62589F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{085B3F2F-1B36-4BCE-8464-81EE5B62589F}.Debug|Win32.Build.0 = Debug|Win32
 		{085B3F2F-1B36-4BCE-8464-81EE5B62589F}.Debug|x64.ActiveCfg = Debug|x64
