@@ -40,7 +40,7 @@ void init_eCAL(int argc, char* argv[]) {
 void publish_eCAL(const int* buf, const int size) {
 	pb::webcam::webcam_raw wcamr;
 
-	wcamr.set_payload((const char*)buf);
+	wcamr.set_payload((const char*)buf, size*sizeof(int));
 	wcamr.set_frame_id(++frameid);
 	wcamr.set_size(size); // w x h
 	publisher_wcamr.Send(wcamr);
@@ -66,7 +66,7 @@ void render()
 			v = j * (1 / 16.0f);
 #if(PERTURBATION==true)
 			u += (float)((sin((tick + i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
-			v += (float)((cos((tick + j*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+//			v += (float)((cos((tick + j*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
 #endif
 			glTexCoord2f(u, v);
 			glVertex2f(i * (640 / 16.0f), j * (480 / 16.0f));
@@ -75,7 +75,7 @@ void render()
 			v = (j + 1) * (1 / 16.0f);
 #if(PERTURBATION==true)
 			u += (float)((sin((tick +       i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
-			v += (float)((cos((tick + (j + 1)*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+//			v += (float)((cos((tick + (j + 1)*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
 #endif
 			glTexCoord2f(u, v);
 			glVertex2f(i * (640 / 16.0f), (j + 1) * (480 / 16.0f));
@@ -93,6 +93,13 @@ void render()
 	
 	if (isCaptureDone(device))
 	{
+
+#if(PUBLISH_eCAL==true)
+		// publish eCAL message
+		publish_eCAL(capture.mTargetBuf, capture.mHeight * capture.mWidth);
+		// publish eCAL message
+#endif
+
 		// OpenGL red and blue are swapped, so we'll need to do some converting here..
 		for (i = 0; i < 512 * 512; i++)
 			capture.mTargetBuf[i] = (capture.mTargetBuf[i] & 0xff00ff00) |
@@ -101,13 +108,6 @@ void render()
 
 		// Load up the new data
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)capture.mTargetBuf);
-		
-
-#if(PUBLISH_eCAL==true)
-		// publish eCAL message
-		publish_eCAL(capture.mTargetBuf, capture.mHeight*capture.mWidth);
-		// publish eCAL message
-#endif
 
 		// ..and ask for more
 		doCapture(device);
