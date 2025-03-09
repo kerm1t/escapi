@@ -1,4 +1,4 @@
-/* "ogl", example of using OpenGL with ESCAPI to create a "funny mirror" effect */
+/* "ogl", example of using OpenGL with ESCAPI to ... optionally ... create a "funny mirror" effect */
 
 #include <SDL.h>
 //#undef main
@@ -6,9 +6,47 @@
 #include <math.h>
 #include <stdio.h>
 #include "escapi.h"
+
+
 struct SimpleCapParams capture;
 int device;
-SDL_Window *window;
+SDL_Window* window;
+
+
+#define PERTURBATION false
+#define PUBLISH_eCAL true
+
+
+#if(PUBLISH_eCAL==true)
+// eCAL
+#include <ecal/ecal.h>
+#include <ecal/msg/protobuf/publisher.h>
+// proto i/o
+#include "webcam.pb.h"
+
+eCAL::protobuf::CPublisher<pb::webcam::webcam_raw> publisher_wcamr;
+int frameid;
+
+void init_eCAL(int argc, char* argv[]) {
+	// Initialize eCAL
+	eCAL::Initialize(argc, argv, "webcam (eCal)");
+	// create publisher
+	publisher_wcamr = eCAL::protobuf::CPublisher<pb::webcam::webcam_raw>("WEBCAM_RAW");
+	// set eCAL state to healthy (--> eCAL Monitor)
+	eCAL::Process::SetState(proc_sev_healthy, proc_sev_level1, "webcam node initialized");
+	frameid = 0;
+}
+
+void publish_eCAL(const int* buf, const int size) {
+	pb::webcam::webcam_raw wcamr;
+
+	wcamr.set_payload((const char*)buf);
+	wcamr.set_frame_id(++frameid);
+	wcamr.set_size(size); // w x h
+	publisher_wcamr.Send(wcamr);
+}
+#endif
+
 
 void render()
 {
@@ -26,15 +64,19 @@ void render()
 			float u, v;
 			u = i * (1 / 16.0f);
 			v = j * (1 / 16.0f);
-//			u += (float)((sin((tick + i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
-//			v += (float)((cos((tick + j*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+#if(PERTURBATION==true)
+			u += (float)((sin((tick + i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
+			v += (float)((cos((tick + j*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+#endif
 			glTexCoord2f(u, v);
 			glVertex2f(i * (640 / 16.0f), j * (480 / 16.0f));
 
 			u = i * (1 / 16.0f);
 			v = (j + 1) * (1 / 16.0f);
-//			u += (float)((sin((tick +       i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
-//			v += (float)((cos((tick + (j + 1)*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+#if(PERTURBATION==true)
+			u += (float)((sin((tick +       i*100) * 0.012387) * 0.04) * sin(tick * 0.000514382));
+			v += (float)((cos((tick + (j + 1)*100) * 0.012387) * 0.04) * sin(tick * 0.000714282));
+#endif
 			glTexCoord2f(u, v);
 			glVertex2f(i * (640 / 16.0f), (j + 1) * (480 / 16.0f));
 		}
@@ -54,16 +96,25 @@ void render()
 		// OpenGL red and blue are swapped, so we'll need to do some converting here..
 		for (i = 0; i < 512 * 512; i++)
 			capture.mTargetBuf[i] = (capture.mTargetBuf[i] & 0xff00ff00) |
-			                        ((capture.mTargetBuf[i] & 0xff) << 16) |
+			                       ((capture.mTargetBuf[i] & 0xff) << 16) |
 									((capture.mTargetBuf[i] & 0xff0000) >> 16);
 
 		// Load up the new data
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)capture.mTargetBuf);
 		
+
+#if(PUBLISH_eCAL==true)
+		// publish eCAL message
+		publish_eCAL(capture.mTargetBuf, capture.mHeight*capture.mWidth);
+		// publish eCAL message
+#endif
+
 		// ..and ask for more
 		doCapture(device);
 	}
 }
+
+
 
 // Entry point
 int main(int argc, char *argv[])
@@ -89,6 +140,9 @@ int main(int argc, char *argv[])
 	initCapture(device,&capture);
 	doCapture(device);
 
+#if(PUBLISH_eCAL==true)
+	init_eCAL(argc, argv);
+#endif
 
     int width = 640;
     int height = 480;
